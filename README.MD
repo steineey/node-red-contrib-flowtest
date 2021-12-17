@@ -6,7 +6,7 @@ This package will add two new node types to your node palette.
 * `test inject` which will inject a test message into your flow.
 * ... and an `assert` node which will catch this test message and make assertions about it.
 
-[example-flow](https://github.com/steineey/node-red-contrib-flowtest/blob/master/example/flow.png)
+![example-flow](https://github.com/steineey/node-red-contrib-flowtest/blob/master/example/flow.png)
 
 A single `test inject` node can define multiple test cases. A test message will behave like a 'real' message. The only difference is that a test message will be catched by the first `assert` node. The `assert` node executes a callback to the `test inject`, where the assertion about the resulting message is done.
 
