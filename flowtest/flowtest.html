@@ -1,0 +1,132 @@
+<script type="text/javascript">
+  RED.nodes.registerType("test inject", {
+    category: "common",
+    color: "#fdd835",
+    defaults: {
+      name: { value: "" },
+      onstart: { value: true },
+      tests: { value: "return [{\n\tlabel: '',\n\tinject: {},\n\tassert: function(msg){}\n}]" },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-flask",
+    label: function () {
+      return this.name || "test inject";
+    },
+    oneditprepare: function () {
+
+      // tabs
+      var tabs = RED.tabs.create({
+        id: "tabs",
+        onchange: function (tab) {
+          $("#tabs-content").children().hide();
+          $("#" + tab.id).show();
+        },
+      });
+
+      tabs.addTab({
+        id: "tab-tests",
+        iconClass: "fa fa-flask",
+        label: 'Tests',
+      });
+
+      tabs.addTab({
+        id: "tab-options",
+        iconClass: "fa fa-cog",
+        label: 'Config',
+      });
+
+      // test editor
+      this.editor = RED.editor.createEditor({
+        id: "node-input-tests-editor",
+        mode: "ace/mode/nrjavascript",
+        value: this.tests,
+        globals: {
+          msg: true,
+          context: true,
+          RED: true,
+          util: true,
+          flow: true,
+          global: true,
+          console: true,
+          Buffer: true,
+          setTimeout: true,
+          clearTimeout: true,
+          setInterval: true,
+          clearInterval: true,
+        },
+      });
+    },
+    oneditsave: function () {
+      this.tests = this.editor.getValue();
+      this.editor.destroy();
+      delete this.editor;
+    },
+    oneditcancel: function () {
+      this.editor.destroy();
+      delete this.editor;
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="test inject">
+  <div class="form-row tabs-row">
+    <ul style="min-width: 600px; margin-bottom: 20px;" id="tabs"></ul>
+  </div>
+
+  <div id="tabs-content" style="min-height: calc(100% - 95px);">
+    <div id="tab-tests" style="display:none">
+      <div class="form-row node-text-editor-row" style="position:relative">
+        <div
+          style="height: 450px; min-height:150px;"
+          class="node-text-editor"
+          id="node-input-tests-editor"
+        ></div>
+      </div>
+    </div>
+
+    <div id="tab-options" style="display:none">
+      <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+      </div>
+      <div class="form-row">
+        <label for="node-input-onstart"
+          ><i class="fa fa-flask"></i> OnStart</label
+        >
+        <input type="checkbox" id="node-input-onstart" />
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="test inject">
+  <p>Inject tests in flow</p>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType("assert", {
+    category: "function",
+    color: "#fdd835",
+    defaults: {
+      name: { value: "" },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-flask",
+    label: function () {
+      return this.name || "assert";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="assert">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="assert">
+  <p>Test assert checkpoint</p>
+</script>
