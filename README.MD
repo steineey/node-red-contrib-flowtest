@@ -1,5 +1,5 @@
 # node-red-contrib-flowtest
-Simple testing for your Node-RED flows. \
+Simple testing for your Node-RED flows.
 
 ## Concept
 This package will add two new node types to your node palette.
