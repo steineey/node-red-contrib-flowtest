@@ -7,9 +7,10 @@
   },
   "keywords": [
     "node-red",
-    "tests",
+    "test",
+    "flow",
     "testing",
-    "flowtest"
+    "assert"
   ],
   "author": "Christopher, Steinbach",
   "license": "MIT",
