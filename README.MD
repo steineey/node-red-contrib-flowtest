@@ -26,12 +26,12 @@ return [<test-case-1>, <test-case-2>, ..., <test-case-n>]
 ```
 ![example-flow](https://github.com/steineey/node-red-contrib-flowtest/blob/master/example/inject-node.png)
 
-### Test Case Definition
-: label (string) : Test case label.
-: inject (object) : Test message. 
-: assert (function(msg)) : Assert function. Define your test assertions with NodeJS - Assert or with [should](https://www.npmjs.com/package/should). 
-: timeout (integer) : Timeout in miliseconds for the test case to timeout. Default is 2000ms, Max is 10000ms.
-: delay (integer) : Delay for the test case inject. Default is 100 ms.
+### Test Case Object
+label (string) : Test case label. \
+inject (object) : Test message. \
+assert (function(msg)) : Assert function. Define your test assertions with NodeJS - Assert or with [should](https://www.npmjs.com/package/should). \
+timeout (integer) : Timeout in miliseconds for the test case to timeout. Default is 2000ms, Max is 10000ms. \
+delay (integer) : Delay for the test case inject. Default is 100 ms. \
 
 ### Example Test Case Definition
 ```
