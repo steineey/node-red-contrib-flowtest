@@ -100,8 +100,51 @@
   </div>
 </script>
 
-<script type="text/html" data-help-name="test inject">
-  <p>Inject tests in flow</p>
+<script type="text/markdown" data-help-name="test inject">
+This node will inject test messages, which can be catched and verified by an assert node.
+
+### Define Test Cases 
+
+Test case script has to return an array ot test cases
+```
+return [<test-case-1>, <test-case-2>, ..., <test-case-n>]
+```
+
+### Test Case Definition
+: label (string) : Test case label.
+: inject (object) : Test message. 
+: assert (function(msg)) : Assert function. Define your test assertions with NodeJS - Assert or with [should](https://www.npmjs.com/package/should). 
+: timeout (integer) : Timeout in miliseconds for the test case to timeout. Default is 2000ms, Max is 10000ms.
+: delay (integer) : Delay for the test case inject. Default is 100 ms.
+
+### Example 
+```
+return [{
+  label: 'is lower case', 
+  inject: {
+      payload: 'HELLO WORLD'
+  },
+  assert: function(msg){
+      should(msg).have.property('payload', 'hello world');
+  }
+}, {
+  label: 'msg payload is not null',
+  inject: {
+    payload: 'hello'
+  },
+  assert: function(msg) {
+      should(msg.payload).not.be.null();
+  }
+},{
+  label: 'wrong data type', 
+  inject: {
+      payload: 123
+  },
+  assert: function(msg) {
+      should(msg).have.property('error');
+  }
+}]
+```
 </script>
 
 <script type="text/javascript">
@@ -127,6 +170,8 @@
   </div>
 </script>
 
-<script type="text/html" data-help-name="assert">
-  <p>Test assert checkpoint</p>
+<script type="text/markdown" data-help-name="assert">
+The assert node verifies the assertions of the test message.
+Place this node at the end of your test flow after a `test inject` node.
+The assert function is defined in the `test inject` node. 
 </script>

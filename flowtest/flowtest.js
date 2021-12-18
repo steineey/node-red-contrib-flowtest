@@ -27,7 +27,7 @@ module.exports = function (RED) {
       (t) =>
         new Promise((resolve) => {
           // set timeout for test
-          t.timeout = t.timeout || 2000;
+          t.timeout = Math.min(t.timeout || 2000, 10000);
           if (typeof t.timeout !== "number") {
             resolve({
               r: "CANCELED",
@@ -75,7 +75,7 @@ module.exports = function (RED) {
             [msgHandlerKey]: testHandler,
           };
 
-          t.delay = t.delay || 100;
+          t.delay = Math.max(t.delay || 100, 0);
           if (typeof t.delay !== "number") {
             resolve({
               r: "CANCELED",
