@@ -26,26 +26,24 @@ module.exports = function (RED) {
     var pendingTests = node.n.tests.map(
       (t) =>
         new Promise((resolve) => {
-          // set timeout for test
-          t.timeout = Math.min(t.timeout || 2000, 10000);
-          if (typeof t.timeout !== "number") {
-            resolve({
-              r: "CANCELED",
-              label: t.label,
-              error: "invalid test: timeout has to be number.",
-            });
-          }
-          timeout = setTimeout(() => {
-            resolve({ r: "NOK", label: t.label, error: "timeout" });
-          }, t.timeout);
-
+          var timeout = null;
           var startTime = null;
 
+          // set timeout for test
+          if(typeof t.timeout !== 'number') {
+            t.timeout = 2000;
+          }
+
+          // test send delay
+          if (typeof t.delay !== "number") {
+            t.delay = 100;
+          }
+          
           var testHandler = {
             tkey: tkey,
             hook: (checkMsg, cb) => {
               // calculate execution time
-              var time = Date.now() - startTime;
+              var ms = Date.now() - startTime;
 
               // clear timeout for test
               if (timeout) {
@@ -56,13 +54,17 @@ module.exports = function (RED) {
               var tr = null;
               try {
                 t.assert(checkMsg);
-                tr = { r: "OK", label: t.label, time: time };
+                tr = { 
+                  tr: "OK", 
+                  label: t.label,
+                  ms: ms 
+                };
               } catch (err) {
                 tr = {
-                  r: "NOK",
+                  tr: "NOK",
                   label: t.label,
                   error: err.message,
-                  time: time,
+                  ms: ms
                 };
               }
               cb(tr);
@@ -75,24 +77,25 @@ module.exports = function (RED) {
             [msgHandlerKey]: testHandler,
           };
 
-          t.delay = Math.max(t.delay || 100, 0);
-          if (typeof t.delay !== "number") {
-            resolve({
-              r: "CANCELED",
-              label: t.label,
-              error: "invalid test: delay has to be number.",
-            });
-          }
+          // send delay
           setTimeout(() => {
+
             startTime = Date.now();
-            node.send(testMsg);
+
+            // test timeout
+            timeout = setTimeout(() => {
+              resolve({ tr: "NOK", label: t.label, error: "timeout", ms: Date.now() - startTime });
+            }, t.timeout);
+
+            // send test
+            node.send([testMsg, null]);
           }, t.delay);
         })
     );
 
     Promise.all(pendingTests).then((tests) => {
       // test stats
-      var passed = tests.filter((t) => t.r === "OK").length;
+      var passed = tests.filter((t) => t.tr === "OK").length;
       var total = tests.length;
       var statusText = null;
       if (passed === total) {
@@ -115,11 +118,11 @@ module.exports = function (RED) {
         "================\n" +
         tests
           .map((t) => {
-            switch (t.r) {
+            switch (t.tr) {
               case "OK":
-                return `✅ ${t.label} (${t.time} ms)`;
+                return `✅ ${t.label} (${t.ms} ms)`;
               case "NOK":
-                return `❌ ${t.label} (${t.time} ms):\n${t.error}`;
+                return `❌ ${t.label} (${t.ms} ms):\n${t.error}`;
               case "CANCELED":
                 return `CANCELED ${t.label}:\n${t.error}`;
             }
@@ -127,6 +130,8 @@ module.exports = function (RED) {
           .join("\n");
 
       sendDebug(node, testText);
+
+      node.send([null, {payload: tests}])
 
       if (done) {
         done();
@@ -184,8 +189,8 @@ module.exports = function (RED) {
         }
 
         node.statusFill = "red";
-        testHandler.hook(msg, function (tr) {
-          if (tr.r === "OK") {
+        testHandler.hook(msg, function (t) {
+          if (t.tr === "OK") {
             node.n.ok++;
             if (node.n.failed === 0) {
               node.statusFill = "green";
